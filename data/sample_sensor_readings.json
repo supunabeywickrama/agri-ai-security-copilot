@@ -1,0 +1,18 @@
+[
+  {"sensor_id": "S-TEMP-001", "sensor_type": "temperature", "value": 22.4, "unit": "C",   "timestamp": "2024-01-15T08:00:00Z", "device_id": "D-FIELD-01", "location": "Field-A"},
+  {"sensor_id": "S-TEMP-001", "sensor_type": "temperature", "value": 23.1, "unit": "C",   "timestamp": "2024-01-15T08:05:00Z", "device_id": "D-FIELD-01", "location": "Field-A"},
+  {"sensor_id": "S-TEMP-001", "sensor_type": "temperature", "value": 22.8, "unit": "C",   "timestamp": "2024-01-15T08:10:00Z", "device_id": "D-FIELD-01", "location": "Field-A"},
+  {"sensor_id": "S-TEMP-001", "sensor_type": "temperature", "value": 23.5, "unit": "C",   "timestamp": "2024-01-15T08:15:00Z", "device_id": "D-FIELD-01", "location": "Field-A"},
+  {"sensor_id": "S-TEMP-001", "sensor_type": "temperature", "value": 85.0, "unit": "C",   "timestamp": "2024-01-15T08:20:00Z", "device_id": "D-FIELD-01", "location": "Field-A"},
+  {"sensor_id": "S-HUM-002",  "sensor_type": "humidity",    "value": 65.0, "unit": "%",   "timestamp": "2024-01-15T08:00:00Z", "device_id": "D-FIELD-01", "location": "Field-A"},
+  {"sensor_id": "S-HUM-002",  "sensor_type": "humidity",    "value": 66.2, "unit": "%",   "timestamp": "2024-01-15T08:05:00Z", "device_id": "D-FIELD-01", "location": "Field-A"},
+  {"sensor_id": "S-HUM-002",  "sensor_type": "humidity",    "value": 64.8, "unit": "%",   "timestamp": "2024-01-15T08:10:00Z", "device_id": "D-FIELD-01", "location": "Field-A"},
+  {"sensor_id": "S-SOIL-003", "sensor_type": "soil_moisture","value": 42.0, "unit": "%",  "timestamp": "2024-01-15T08:00:00Z", "device_id": "D-FIELD-02", "location": "Field-B"},
+  {"sensor_id": "S-SOIL-003", "sensor_type": "soil_moisture","value": 41.5, "unit": "%",  "timestamp": "2024-01-15T08:05:00Z", "device_id": "D-FIELD-02", "location": "Field-B"},
+  {"sensor_id": "S-SOIL-003", "sensor_type": "soil_moisture","value":  2.0, "unit": "%",  "timestamp": "2024-01-15T08:10:00Z", "device_id": "D-FIELD-02", "location": "Field-B"},
+  {"sensor_id": "S-PH-004",   "sensor_type": "ph",          "value":  6.8, "unit": "pH", "timestamp": "2024-01-15T08:00:00Z", "device_id": "D-FIELD-02", "location": "Field-B"},
+  {"sensor_id": "S-PH-004",   "sensor_type": "ph",          "value":  6.9, "unit": "pH", "timestamp": "2024-01-15T08:05:00Z", "device_id": "D-FIELD-02", "location": "Field-B"},
+  {"sensor_id": "S-CO2-005",  "sensor_type": "co2",         "value": 412.0,"unit": "ppm","timestamp": "2024-01-15T08:00:00Z", "device_id": "D-GREENHOUSE-01","location": "Greenhouse-1"},
+  {"sensor_id": "S-CO2-005",  "sensor_type": "co2",         "value": 418.0,"unit": "ppm","timestamp": "2024-01-15T08:05:00Z", "device_id": "D-GREENHOUSE-01","location": "Greenhouse-1"},
+  {"sensor_id": "S-CO2-005",  "sensor_type": "co2",         "value":4500.0,"unit": "ppm","timestamp": "2024-01-15T08:10:00Z", "device_id": "D-GREENHOUSE-01","location": "Greenhouse-1"}
+]
