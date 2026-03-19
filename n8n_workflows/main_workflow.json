@@ -1,0 +1,50 @@
+{
+  "name": "Agri-AI Sensor Data Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "sensor-input",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ],
+      "webhookId": "sensor-input"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5000/sensor-data",
+        "sendBinaryData": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{JSON.stringify($json)}}",
+        "options": {}
+      },
+      "name": "Forward to Backend",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        500,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Forward to Backend",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
