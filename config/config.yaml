@@ -1,0 +1,90 @@
+# Agri AI Security Copilot — Configuration
+# All values can be overridden via environment variables.
+
+system:
+  name: "Agri AI Security Copilot"
+  version: "1.0.0"
+  log_level: "INFO"            # DEBUG | INFO | WARNING | ERROR
+  auto_heal: true              # Set to false to require manual approval for all actions
+
+anomaly_detection:
+  zscore_window: 50            # Number of samples in rolling window
+  zscore_threshold: 3.0        # Z-score cutoff for anomaly
+  isolation_contamination: 0.1 # Expected fraction of anomalies
+  min_score_for_incident: 0.4  # Anomaly score threshold to create an incident
+
+  # Sensor-specific threshold overrides
+  thresholds:
+    temperature:
+      min: -10.0
+      max: 60.0
+      warn_min: 0.0
+      warn_max: 50.0
+    humidity:
+      min: 0.0
+      max: 100.0
+      warn_min: 10.0
+      warn_max: 95.0
+    soil_moisture:
+      min: 0.0
+      max: 100.0
+      warn_min: 5.0
+      warn_max: 90.0
+    ph:
+      min: 0.0
+      max: 14.0
+      warn_min: 3.0
+      warn_max: 10.0
+    co2:
+      min: 0.0
+      max: 5000.0
+      warn_min: 0.0
+      warn_max: 2000.0
+    battery:
+      min: 0.0
+      max: 100.0
+      warn_min: 15.0
+      warn_max: 100.0
+
+threat_detection:
+  port_scan_threshold: 15          # Distinct ports from one IP before alerting
+  brute_force_threshold: 5         # Auth failures before alerting
+  ddos_pps_threshold: 500          # Packets in window before DDoS alert
+  replay_window_size: 1000         # Number of event IDs to cache for replay detection
+  min_confidence_for_incident: 0.4 # Confidence threshold to create a threat incident
+
+self_healing:
+  auto_execute_max_severity: "high"  # Incidents above this require manual approval
+  # Actions to enable/disable
+  enabled_actions:
+    - block_ip
+    - rate_limit_ip
+    - quarantine_device
+    - isolate_segment
+    - reboot_device
+    - rollback_firmware
+    - rotate_credentials
+    - disable_port
+    - increase_log_verbosity
+    - alert_operator
+    - recalibrate_sensor
+    - schedule_maintenance
+    - adjust_threshold
+    - enforce_mfa
+    - lock_account
+
+rag_advisor:
+  top_k: 3   # Number of KB documents to retrieve per query
+
+predictive_maintenance:
+  history_window: 30             # Snapshots to retain per device
+  battery_critical_pct: 10.0
+  battery_warning_pct: 20.0
+  rssi_critical_dbm: -95.0
+  rssi_warning_dbm: -85.0
+  error_rate_critical: 10.0      # errors/hour
+  error_rate_warning: 3.0        # errors/hour
+
+n8n:
+  webhook_url: ""                # Set to n8n webhook URL for event forwarding
+  api_key: ""                    # n8n API key (use environment variable N8N_API_KEY)

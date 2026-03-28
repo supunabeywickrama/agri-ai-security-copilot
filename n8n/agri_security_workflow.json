@@ -1,0 +1,220 @@
+{
+  "name": "Agri AI Security Copilot — IoT Security Workflow",
+  "nodes": [
+    {
+      "id": "trigger-1",
+      "name": "IoT Sensor Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [100, 300],
+      "parameters": {
+        "path": "iot-sensor-event",
+        "httpMethod": "POST",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "notes": "Receives real-time sensor readings from IoT devices via HTTP POST."
+    },
+    {
+      "id": "trigger-2",
+      "name": "Network Event Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [100, 500],
+      "parameters": {
+        "path": "network-event",
+        "httpMethod": "POST",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "notes": "Receives network events from the IoT gateway IDS."
+    },
+    {
+      "id": "trigger-3",
+      "name": "Device Health Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [100, 700],
+      "parameters": {
+        "path": "device-health",
+        "httpMethod": "POST",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "notes": "Receives periodic device health snapshots for predictive maintenance."
+    },
+    {
+      "id": "node-sensor-analyze",
+      "name": "Anomaly Detection (Python)",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [400, 300],
+      "parameters": {
+        "command": "python3 /opt/agri-security/main.py --mode sensor --data '{{ $json.body }}'"
+      },
+      "notes": "Runs the Python anomaly detector on the incoming sensor reading."
+    },
+    {
+      "id": "node-threat-analyze",
+      "name": "Threat Detection (Python)",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [400, 500],
+      "parameters": {
+        "command": "python3 /opt/agri-security/main.py --mode threat --data '{{ $json.body }}'"
+      },
+      "notes": "Runs the Python threat detector on the incoming network event."
+    },
+    {
+      "id": "node-health-analyze",
+      "name": "Predictive Maintenance (Python)",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [400, 700],
+      "parameters": {
+        "command": "python3 /opt/agri-security/main.py --mode health --data '{{ $json.body }}'"
+      },
+      "notes": "Runs the predictive maintenance module on the device health snapshot."
+    },
+    {
+      "id": "node-parse-result",
+      "name": "Parse Detection Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [700, 400],
+      "parameters": {
+        "jsCode": "const raw = items[0].json.stdout || '{}'; let result; try { result = JSON.parse(raw); } catch(e) { result = { error: raw }; } return [{ json: result }];"
+      }
+    },
+    {
+      "id": "node-is-incident",
+      "name": "Incident Detected?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [950, 400],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.incident_id !== undefined && $json.incident_id !== null }}",
+              "operation": "equal",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-self-heal",
+      "name": "Auto Self-Heal",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1200, 280],
+      "parameters": {
+        "command": "python3 /opt/agri-security/main.py --mode heal --incident-id '{{ $json.incident_id }}'"
+      },
+      "notes": "Triggers automated self-healing actions for the detected incident."
+    },
+    {
+      "id": "node-rag-advice",
+      "name": "Get RAG Fix Advice",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1200, 460],
+      "parameters": {
+        "command": "python3 /opt/agri-security/main.py --mode advise --incident-id '{{ $json.incident_id }}'"
+      },
+      "notes": "Retrieves context-aware fix recommendations from the RAG knowledge base."
+    },
+    {
+      "id": "node-notify-slack",
+      "name": "Notify Slack (Critical/High)",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1500, 280],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#agri-security-alerts",
+        "text": "🚨 *Security Incident Detected* — ID: `{{ $json.incident_id }}`\n*Type:* {{ $json.incident_type }}\n*Severity:* {{ $json.severity }}\n*Target:* {{ $json.target }}\n*Status:* {{ $json.status }}\n\n*RAG Advice:*\n{{ $node['Get RAG Fix Advice'].json.advice.summary }}"
+      },
+      "credentials": {
+        "slackApi": { "id": "slack-creds", "name": "Slack API" }
+      }
+    },
+    {
+      "id": "node-store-db",
+      "name": "Store Incident in DB",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [1500, 460],
+      "parameters": {
+        "operation": "insert",
+        "schema": "public",
+        "table": "incidents",
+        "columns": "incident_id, incident_type, severity, target, status, created_at, healing_plan, advice",
+        "additionalFields": {}
+      },
+      "credentials": {
+        "postgres": { "id": "pg-creds", "name": "PostgreSQL" }
+      }
+    },
+    {
+      "id": "node-no-incident",
+      "name": "No Incident — Log OK",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1200, 650],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "IoT Sensor Webhook": {
+      "main": [[{ "node": "Anomaly Detection (Python)", "type": "main", "index": 0 }]]
+    },
+    "Network Event Webhook": {
+      "main": [[{ "node": "Threat Detection (Python)", "type": "main", "index": 0 }]]
+    },
+    "Device Health Webhook": {
+      "main": [[{ "node": "Predictive Maintenance (Python)", "type": "main", "index": 0 }]]
+    },
+    "Anomaly Detection (Python)": {
+      "main": [[{ "node": "Parse Detection Result", "type": "main", "index": 0 }]]
+    },
+    "Threat Detection (Python)": {
+      "main": [[{ "node": "Parse Detection Result", "type": "main", "index": 0 }]]
+    },
+    "Predictive Maintenance (Python)": {
+      "main": [[{ "node": "Parse Detection Result", "type": "main", "index": 0 }]]
+    },
+    "Parse Detection Result": {
+      "main": [[{ "node": "Incident Detected?", "type": "main", "index": 0 }]]
+    },
+    "Incident Detected?": {
+      "main": [
+        [
+          { "node": "Auto Self-Heal",       "type": "main", "index": 0 },
+          { "node": "Get RAG Fix Advice",   "type": "main", "index": 0 }
+        ],
+        [{ "node": "No Incident — Log OK", "type": "main", "index": 0 }]
+      ]
+    },
+    "Auto Self-Heal": {
+      "main": [[{ "node": "Notify Slack (Critical/High)", "type": "main", "index": 0 }]]
+    },
+    "Get RAG Fix Advice": {
+      "main": [[{ "node": "Store Incident in DB", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "any",
+    "errorWorkflow": "agri-security-error-handler"
+  },
+  "tags": ["iot-security", "smart-agriculture", "self-healing"],
+  "meta": {
+    "description": "Self-Healing IoT Security workflow for Smart Agriculture. Processes sensor anomalies, cyber threats, and device health to trigger automated remediation and operator alerts.",
+    "version": "1.0.0"
+  }
+}
